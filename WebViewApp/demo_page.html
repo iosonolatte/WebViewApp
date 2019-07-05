@@ -1,0 +1,68 @@
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width, user-scalable=no" />
+        <link rel="stylesheet" type="text/css" href="style.css"/>
+    </head>
+    <body>
+        <div class="card-1">
+            <p>Show native toast message</p>
+            <input id="toast_button" type="button" value="Show Toast"/>
+        </div>
+        
+        <div class="card-1">
+            <p>Take photo</p>
+            <input id="take_photo" type="button" value="Open Camera" />
+            <img id="photo" src=""/>
+        </div>
+        
+        <div class="card-1">
+            <p>Make a call to +65 8654 9179</p>
+            <input id="call" type="button" value="Dial"/>
+        </div>
+        
+    </body>
+    <script type="text/javascript">
+        function setupWebViewJavascriptBridge(callback) {
+            if (window.WebViewJavascriptBridge) { return callback(WebViewJavascriptBridge); }
+            if (window.WVJBCallbacks) { return window.WVJBCallbacks.push(callback); }
+            window.WVJBCallbacks = [callback];
+            var WVJBIframe = document.createElement('iframe');
+            WVJBIframe.style.display = 'none';
+            WVJBIframe.src = 'https://__bridge_loaded__';
+            document.documentElement.appendChild(WVJBIframe);
+            setTimeout(function() { document.documentElement.removeChild(WVJBIframe) }, 0)
+        }
+	    setupWebViewJavascriptBridge(function(bridge) {
+		
+			/* Initialize your app here */
+			var alertButton = document.getElementById('toast_button')
+			alertButton.onclick = function showPopup(msg) {
+		    	bridge.callHandler('showAlert', {'key':msg}, function responseCallback(responseData) {
+					console.log("JS received response:", responseData)
+				})
+		    }
+
+		    var cameraButton = document.getElementById('take_photo')
+		    cameraButton.onclick = function takePhoto() {
+		    	bridge.callHandler('openCamera', {'key':'value'}, function responseCallback(responseData) {
+					console.log("JS received response:", responseData)
+				})
+		    }
+
+		    var callButton = document.getElementById('call')
+		    callButton.onclick = function takePhoto() {
+		    	bridge.callHandler('makeCall', {'key':'value'}, function responseCallback(responseData) {
+					console.log("JS received response:", responseData)
+				})
+		    }
+
+		    bridge.registerHandler('photoTaken', function(data, responseCallback) {
+				document.getElementById('photo').setAttribute(
+        			'src', 'data:image/png;base64,' + data
+    			);
+				responseCallback(data)
+			})
+		})
+                                 
+    </script>
+</html>
